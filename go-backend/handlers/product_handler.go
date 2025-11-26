@@ -21,7 +21,7 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Failed to retrieve products", http.StatusInternalServerError)
         return
     }
-
+    w.WriteHeader(http.StatusOK)
     json.NewEncoder(w).Encode(products)
 }
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +17,7 @@ func InitializeDatabase(models ...interface{}) {
 	var err error
 	// Use SQLite for simplicity in this base project.
 	// Replace with postgres.Open() or mysql.Open() for production.
-	DB, err = gorm.Open(sqlite.Open("inventory.db"), &gorm.Config{})
+	DB, err = gorm.Open(postgres.Open("inventory.db"), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
