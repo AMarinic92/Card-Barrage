@@ -1,13 +1,16 @@
+"use client"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import "@/app/globals.css"  // or "./globals.css" depending on your structure
 import Image from "next/image"
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient(); 
   return (
     <html lang="en">
       <body>
-
+        <QueryClientProvider client={queryClient}>
         <SidebarProvider>
             <AppSidebar />
             <main className="flex-1">
@@ -28,6 +31,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </main>
         </SidebarProvider>
+        </QueryClientProvider>
       </body>
     </html>
   )
