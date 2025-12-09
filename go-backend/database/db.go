@@ -108,10 +108,39 @@ func SearchCardByNameFuzzy(name string) ([]Card, error) {
 	return cards, nil
 }
 
+func GetRandomCard() (Card, error) {
+	var card Card
+	result := DB.Where("lang = ?", "en").Order("RANDOM()").First(&card)
+	return card, result.Error
+}
+
+func SearchFuzzyOracleText(text []string) ([]Card, error) {
+	var out []Card
+	var lastErr error
+
+	for _, val := range text {
+		var cards []Card
+		result := DB.Where("oracle_text ILIKE ?", "%"+val+"%").Find(&cards)
+		if result.Error != nil {
+			lastErr = result.Error
+			continue
+		}
+		if len(cards) > 0 {
+			out = append(out, cards...)
+		}
+	}
+
+	if len(out) == 0 && lastErr != nil {
+		return nil, lastErr
+	}
+
+	return out, nil
+}
+
 // GetCardByID retrieves a card by its Scryfall ID
 func GetCardByID(id string) (*Card, error) {
 	var card Card
-	result := DB.Select("Name", "ImageURIs", "Colors").Where("id = ?", id).First(&card)
+	result := DB.Select("Name", "ImageURIs", "Colors", "CardFaces", "OracleText", "ManaCost").Where("id = ?", id).First(&card)
 	if result.Error != nil {
 		return nil, result.Error
 	}

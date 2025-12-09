@@ -86,74 +86,52 @@ func SearchCard(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetRndCard(w http.ResponseWriter, r *http.Request) {
-	scryfallURL := "https://api.scryfall.com/cards/random"
-	resp, err := http.Get(scryfallURL)
-	if err != nil {
-		http.Error(w, "Failed to fetch from Scryfall", http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Card not found"+strconv.Itoa(resp.StatusCode), http.StatusNotFound)
-		return
-	}
-
-	// Read Scryfall response
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		http.Error(w, "Failed to read Scryfall response", http.StatusInternalServerError)
-		return
-	}
-
-	// Parse Scryfall response
-	var scryfallCard map[string]interface{}
-	if err := json.Unmarshal(body, &scryfallCard); err != nil {
-		http.Error(w, "Failed to parse Scryfall response", http.StatusInternalServerError)
-		return
-	}
-
-	// Get the card ID from Scryfall response
-	cardID, ok := scryfallCard["id"].(string)
-	if !ok {
-		http.Error(w, "Invalid card data from Scryfall", http.StatusInternalServerError)
-		return
-	}
 
 	// Check if card already exists in database
-	existingCard, err := database.GetCardByID(cardID)
+	existingCard, err := database.GetRandomCard()
 	if err == nil {
 		// Card found in database, return cached version
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"source": "cache",
-			"card":   existingCard,
+			"card": existingCard,
 		})
 		return
 	}
 
-	// Card not in database (or error retrieving), cache it
-	if err != gorm.ErrRecordNotFound {
-		// Log unexpected database error but continue
-		fmt.Printf("Database error checking for card: %v\n", err)
+}
+
+func GetSimilarCards(w http.ResponseWriter, r *http.Request) {
+	// Read the raw body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// If you're expecting JSON, unmarshal it into a struct
+	var requestData struct {
+		SearchTerms []string `json:"search_terms"`
 	}
 
-	newCard := mapScryfallToCard(scryfallCard)
-	if err := database.UpsertCard(newCard); err != nil {
-		fmt.Printf("Failed to cache card: %v\n", err)
-		// Continue anyway - we still have the data to return
+	err = json.Unmarshal(body, &requestData)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
 	}
 
-	// Return the card from Scryfall
+	// Use the data
+	cards, err := database.SearchFuzzyOracleText(requestData.SearchTerms)
+	if err != nil {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	// Send response
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"source": "scryfall",
-		"card":   newCard,
-	})
+	json.NewEncoder(w).Encode(cards)
 }
 
 // mapScryfallToCard converts Scryfall JSON to our Card model

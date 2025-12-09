@@ -55,6 +55,7 @@ func main() {
 	// 4. Define the routes
 	router.HandleFunc("/api/cards/search", handlers.SearchCard).Methods("GET")
 	router.HandleFunc("/api/cards/rand", handlers.GetRndCard).Methods("GET")
+	router.HandleFunc("/api/cards/similar", handlers.GetSimilarCards).Methods("POST")
 	router.PathPrefix("/").HandlerFunc(handlers.OptionsHandler).Methods("OPTIONS")
 
 	// 5. Start the server

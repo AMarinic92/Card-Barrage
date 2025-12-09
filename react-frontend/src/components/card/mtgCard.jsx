@@ -4,23 +4,28 @@ import { useMemo } from "react";
 export default function MtgCard({data}){
     const imageUri = useMemo(() => {
         if(!data) return;
-        const images =JSON.parse(data?.ImageURIs);
-        return images?.normal;
+        const images = data?.ImageURIs ? JSON.parse(data?.ImageURIs) : JSON.parse(data?.CardFaces);
+        
+        return data?.ImageURIs ? [images?.normal] : [image?.[0]?.normal, image?.[1]?.normal];
     }, [data])
     if(!data) return;
-
+    console.log(data)
+    console.log(imageUri)
     return(
         <div className={`${getStyle(data?.Colors)} min-h-96 min-w-48 text-6xl p-3.5 mt-2`}>
             <div className="m-4">
                 {data?.Name}
             </div>
             <div>
-                <Image 
-                    src={imageUri}
-                    width={500}
-                    height={500}
-                    alt="Picture of the author"
-                />
+            {imageUri.map((uri) =>{
+                            return <Image 
+                                src={uri}
+                                width={500}
+                                height={500}
+                                preload={true}
+                                alt="Picture of the author"
+                            />}
+            )}
             </div>
         </div>
     )
