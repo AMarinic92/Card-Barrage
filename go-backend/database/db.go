@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/lib/pq"
@@ -115,30 +116,47 @@ func GetRandomCard() (Card, error) {
 }
 
 func SearchFuzzyOracleText(name string, text []string) ([]Card, error) {
-	var out []Card
-	var lastErr error
+	var (
+		mu      sync.Mutex
+		wg      sync.WaitGroup
+		out     []Card
+		lastErr error
+	)
 
 	for _, val := range text {
-		var cards []Card
+		wg.Add(1)
+		go func(searchVal string) {
+			defer wg.Done()
 
-		DB.Exec("SELECT set_limit(0.3)")
+			var cards []Card
 
-		// Query with similarity matching
-		result := DB.Not("name = ?", name).
-			Distinct("name").
-			Where("oracle_text % ?", val).
-			Order(gorm.Expr("similarity(oracle_text, ?) DESC", val)). // Use gorm.Expr
-			Limit(50).
-			Find(&cards)
-		// result := DB.Not("name = ?", name).Distinct("name").Where("oracle_text ILIKE ?", "%"+val+"%").Limit(50).Find(&cards)
-		if result.Error != nil {
-			lastErr = result.Error
-			continue
-		}
-		if len(cards) > 0 {
-			out = append(out, cards...)
-		}
+			// Each goroutine gets its own DB session
+			db := DB.Session(&gorm.Session{})
+			db.Exec("SELECT set_limit(0.9)")
+
+			result := db.Select("DISTINCT ON (name) Name", "ImageURIs", "Colors", "CardFaces", "OracleText", "ManaCost").
+				Not("name = ?", name).
+				Where("lang = ?", "en").
+				Where("oracle_text % ?", searchVal).
+				Order(gorm.Expr("name DESC, similarity(oracle_text, ?) DESC", searchVal)).
+				Limit(50).
+				Find(&cards)
+
+			mu.Lock()
+			defer mu.Unlock()
+
+			if result.Error != nil {
+				lastErr = result.Error
+				return
+			}
+
+			if len(cards) > 0 {
+				out = append(out, cards...)
+			}
+		}(val)
 	}
+
+	wg.Wait()
 
 	if len(out) == 0 && lastErr != nil {
 		return nil, lastErr
