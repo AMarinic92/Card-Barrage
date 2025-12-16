@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient(); 
   return (
     <html lang="en">
-      <body>
+      <body className="dark bg-background">
         <QueryClientProvider client={queryClient}>
         <SidebarProvider>
             <AppSidebar />
@@ -18,10 +18,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <SidebarTrigger />
                 <Image
                   className="dark:invert border-amber-100 border-2"
-                  src="/next.svg"
-                  alt="Next.js logo"
+                  src="/card-barrage.jpg"
+                  alt="Card Barrage logo"
                   width={100}
-                  height={10}
+                  height={100}
                   priority
                 />
                 
