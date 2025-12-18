@@ -102,9 +102,10 @@ func SearchCardByName(name string) (*Card, error) {
 // SearchCardByNameFuzzy searches for cards with similar names (requires pg_trgm extension)
 func SearchCardByNameFuzzy(name string) ([]Card, error) {
 	var cards []Card
-	result := DB.Where("name % ?", name).
+	result := DB.Select("DISTINCT ON (name) Name", "ID", "ImageURIs", "Colors", "CardFaces", "OracleText", "ManaCost").
+		Where("name % ?", name).
 		Where("lang = 'en'").
-        Order(gorm.Expr("similarity(name, ?) DESC", name)).
+        Order(gorm.Expr("similarity(name, ?) DESC, name DESC", name)).
         Limit(10).
         Find(&cards)
 	if result.Error != nil {
