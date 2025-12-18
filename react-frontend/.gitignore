@@ -41,3 +41,5 @@ yarn-error.log*
 next-env.d.ts
 /go-backend/__debug*
 ../vscode/*
+
+.prettierrc

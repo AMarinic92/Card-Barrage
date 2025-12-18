@@ -55,7 +55,7 @@ module.exports = {
       // --- 2. Custom Typography (Based on the logo's style) ---
       fontFamily: {
         // A bold, classic font for titles (like the 'Card Barrage' text)
-        display: ['Georgia', 'serif'], 
+        display: ['Impact', 'serif'], 
         // A clean, modern font for body text (ensures readability)
         body: ['Inter', 'sans-serif'], 
       },

@@ -1,51 +1,74 @@
-import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import { useMemo } from "react";
-export default function MtgCard({data}){
-    const imageUri = useMemo(() => {
-        if(!data) return;
-        const images = JSON.parse(data?.ImageURIs);
-        const image = images != null ? images?.normal : undefined;
-        const cardFaces = JSON.parse(data?.CardFaces);
-        const cardFacesUris = cardFaces != null ? cardFaces?.map((val) => val?.image_uris?.normal) : undefined;
-        return image != undefined ? [image] : cardFacesUris;
-    }, [data])
-    if(!data) return;
+import { Label } from '@/components/ui/label';
+import Image from 'next/image';
+import { useMemo } from 'react';
+import { Spinner } from '@/components/ui/spinner';
+import Loading from '@/components/loading/loading';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
-    return(
-        <div className={`min-h-96 min-w-48 max-w-fit max-h-fit text-6xl p-3.5 mt-2`}>
-            <div className="m-4">
-                {data?.Name}
-            </div>
-            <div>
-            {imageUri?.map((uri,i) =>{
-                            return (<div key={data?.Name+i} className="mb-3"><Image 
-                                src={uri}
-                                width={500}
-                                height={5000.}
-                                preload={true}
-                                alt="Picture of the author"
-                            /></div>)}
-            )}
-            </div>
+export default function MtgCard({ data, isLoading = false }) {
+  const imageUri = useMemo(() => {
+    if (!data) return undefined;
+    const images = JSON.parse(data?.ImageURIs);
+    const image = images != null ? images?.normal : undefined;
+    const cardFaces = JSON.parse(data?.CardFaces);
+    const cardFacesUris =
+      cardFaces != null
+        ? cardFaces?.map((val) => val?.image_uris?.normal)
+        : undefined;
+    return image != undefined ? [image] : cardFacesUris;
+  }, [data]);
+  return !isLoading && !!data ? (
+    <Dialog>
+      <DialogTrigger>
+        <div
+          className={`cursor-pointer flex flex-col items-center text-6xl p-3.5 m-3.5 gap-3.5`}
+        >
+          {data?.Name}
+          {imageUri?.map((uri, i) => {
+            return (
+              <div key={data?.Name + i} className="mb-3">
+                <Image
+                  src={uri}
+                  width={500}
+                  height={500}
+                  preload={true}
+                  alt="Picture of the author"
+                />
+              </div>
+            );
+          })}
         </div>
-    )
-}
-const colourMap = new Map([
-    ["B", "bg-zinc-600 border-zinc-900"], 
-    ["W", "bg-slate-50 border-slate-200"],
-    ["U", "bg-zinc-600 border-zinc-900"], 
-    ["G", "bg-green-700 border-green-950"],
-    ["R", "bg-red-800 border-red-950"],
-]);
-
-function getStyle(colours){
-    
-    const border = "border-8"
-    if(!colours) return "bg-gray-400 border-gray-900 "+border;
-    if(colours?.length > 1){
-        return "bg-yellow-600 border-yellow-900 "+border;
-    }
-    return `${colourMap.get(colours[0])} ${border}`;
-
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{data?.Name}</DialogTitle>
+          <DialogDescription>
+            {data?.OracleText}
+            {imageUri?.map((uri, i) => {
+              return (
+                <div key={data?.Name + i} className="mb-3">
+                  <Image
+                    src={uri}
+                    width={500}
+                    height={500}
+                    preload={true}
+                    alt="Picture of the author"
+                  />
+                </div>
+              );
+            })}
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  ) : (
+    isLoading && <Loading />
+  );
 }

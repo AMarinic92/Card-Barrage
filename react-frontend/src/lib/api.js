@@ -1,5 +1,6 @@
 // api.js
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8081/api';
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || 'http://localhost:8081/api';
 
 class API {
   /**
@@ -12,7 +13,7 @@ class API {
     try {
       const queryString = new URLSearchParams(params).toString();
       const url = `${API_BASE_URL}${endpoint}${queryString ? `?${queryString}` : ''}`;
-      
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {

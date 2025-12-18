@@ -57,6 +57,7 @@ func main() {
 	router.HandleFunc("/api/cards/search", handlers.SearchCard).Methods("GET")
 	router.HandleFunc("/api/cards/rand", handlers.GetRndCard).Methods("GET")
 	router.HandleFunc("/api/cards/similar", handlers.GetSimilarCards).Methods("POST")
+	router.HandleFunc("/api/cards/fuzzy",handlers.GetFuzzyCard).Methods("GET")
 	router.PathPrefix("/").HandlerFunc(handlers.OptionsHandler).Methods("OPTIONS")
 
 	c := cors.New(cors.Options{

@@ -89,14 +89,14 @@ func SearchCard(w http.ResponseWriter, r *http.Request) {
 func GetRndCard(w http.ResponseWriter, r *http.Request) {
 
 	// Check if card already exists in database
-	existingCard, err := database.GetRandomCard()
+	card, err := database.GetRandomCard()
 	if err == nil {
 		// Card found in database, return cached version
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"card": existingCard,
+			"card": card,
 		})
 		return
 	}
@@ -136,6 +136,26 @@ func GetSimilarCards(w http.ResponseWriter, r *http.Request) {
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(cards)
+}
+
+func GetFuzzyCard(w http.ResponseWriter, r *http.Request){
+	cardName := r.URL.Query().Get("name")
+	if cardName == "" {
+		http.Error(w, "Card name is required", http.StatusBadRequest)
+		return
+	}
+		card, err := database.SearchCardByNameFuzzy(cardName)
+	if err == nil {
+		// Card found in database, return cached version
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"data": card,
+		})
+		return
+	}
+
 }
 
 // mapScryfallToCard converts Scryfall JSON to our Card model
@@ -232,4 +252,10 @@ func mapScryfallToCard(data map[string]interface{}) *database.Card {
 	}
 
 	return card
+}
+func OptionsHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+    w.WriteHeader(http.StatusOK)
 }

@@ -43,3 +43,5 @@ next-env.d.ts
 #project stuff
 /go-backend/__debug*
 /.vscode/*
+
+.prettierrc

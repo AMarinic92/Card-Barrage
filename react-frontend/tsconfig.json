@@ -28,7 +28,11 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "src/app/random/page.jsx",
+    "src/app/layout.jsx",
+    "src/app/page.jsx",
+    "src/app/search/page.jsx"
   ],
   "exclude": ["node_modules"]
 }
