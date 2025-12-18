@@ -142,7 +142,7 @@ func SearchFuzzyOracleText(name string, text []string) ([]Card, error) {
             var cards []Card
             // Each goroutine gets its own DB session
             db := DB.Session(&gorm.Session{})
-            db.Exec("SELECT set_limit(0.9)")
+            db.Exec("SELECT set_limit(0.85)")
             
             result := db.Raw(`
                 SELECT c.name, c.id, c.image_uris, c.colors, c.card_faces, c.oracle_text, c.mana_cost

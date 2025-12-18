@@ -11,8 +11,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Button } from '../ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function MtgCard({ data, isLoading = false }) {
+  const router = useRouter();
   const imageUri = useMemo(() => {
     if (!data) return undefined;
     const images = JSON.parse(data?.ImageURIs);
@@ -24,6 +27,11 @@ export default function MtgCard({ data, isLoading = false }) {
         : undefined;
     return image != undefined ? [image] : cardFacesUris;
   }, [data]);
+
+  const handleGoTo = () => {
+    if (!data?.ID) return;
+    router.push(`/cards/${data.ID}`);
+  };
 
   if (isLoading) return <Loading />;
   if (!data) return null;
@@ -42,7 +50,7 @@ export default function MtgCard({ data, isLoading = false }) {
           </h3>
 
           {imageUri?.map((uri, i) => (
-            <div key={`${data.Name}-${i}`} className="w-full">
+            <div key={`${data.ID}-${i}`} className="w-full">
               <Image
                 src={uri}
                 width={488}
@@ -63,7 +71,7 @@ export default function MtgCard({ data, isLoading = false }) {
             <div className="flex flex-col gap-4">
               <p className="text-sm italic">{data?.OracleText}</p>
               {imageUri?.map((uri, i) => (
-                <div key={`${data.Name}-dialog-${i}`} className="w-full">
+                <div key={`${data.ID}-dialog-${i}`} className="w-full">
                   <Image
                     src={uri}
                     width={488}
@@ -72,6 +80,7 @@ export default function MtgCard({ data, isLoading = false }) {
                     className="w-full h-auto rounded-[4.75%] shadow-xl"
                     alt={data.Name}
                   />
+                  <Button onClick={handleGoTo}>Go To Card Page</Button>
                 </div>
               ))}
             </div>

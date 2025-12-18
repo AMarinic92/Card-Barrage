@@ -1,28 +1,26 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { useMutation } from '@tanstack/react-query';
-import Image from 'next/image';
 import API from '../../lib/api';
 import MtgCard from '@/components/card/mtgCard';
 import { useEffect, useState } from 'react';
-import { Spinner } from '@/components/ui/spinner';
 import Loading from '@/components/loading/loading';
 export default function RandomCard() {
   const [similar, setSimilar] = useState([]);
   // Random Card Mutation
   const randomMutation = useMutation({
-    mutationFn: () => API.get('/cards/rand'),
+    mutationFn: async () => await API.get('/cards/rand'),
   });
 
   // Similar Cards Mutation
   const similarMutation = useMutation({
-    mutationFn: (currentCard) => {
+    mutationFn: async (currentCard) => {
       const payload = {
         name: currentCard?.Name,
         oracle_texts: currentCard?.OracleText?.split('\n') || [],
       };
       console.debug(payload);
-      return API.post('/cards/similar', payload);
+      return await API.post('/cards/similar', payload);
     },
   });
 
@@ -75,7 +73,7 @@ export default function RandomCard() {
         {similar ? (
           similar?.map((simCard) => {
             return (
-              <div key={simCard.id || simCard.Name} className="flex-col">
+              <div key={simCard.ID || simCard.Name} className="flex-col">
                 <MtgCard isLoading={similarMutation.isPending} data={simCard} />
               </div>
             );

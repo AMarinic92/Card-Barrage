@@ -32,7 +32,9 @@
     "src/app/random/page.jsx",
     "src/app/layout.jsx",
     "src/app/page.jsx",
-    "src/app/search/page.jsx"
+    "src/app/search/page.jsx",
+    "src/app/cards/[slug]/page.js",
+    "src/app/cards/[slug]/page.jsx"
   ],
   "exclude": ["node_modules"]
 }

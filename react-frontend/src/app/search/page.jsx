@@ -32,11 +32,8 @@ export default function CardSearchForm() {
 
   // 1. Watch the input value
   const cardName = searchForm.watch('cardName');
-
   // 2. Debounce the value (React 18+ hook)
-  // This prevents the query from firing on every single keystroke
   const deferredTerm = useDeferredValue(cardName);
-
   // 3. Simple Query: It automatically refetches when deferredTerm changes
   const { data, isFetching } = useQuery({
     queryKey: ['fuzzy-card', deferredTerm],
@@ -75,11 +72,14 @@ export default function CardSearchForm() {
         {isFetching ? (
           <Loading />
         ) : (
-          data?.map((card) => (
-            <div key={card.id || card.name} className="flex-col">
-              <MtgCard data={card} />
-            </div>
-          ))
+          data?.map(
+            (card) =>
+              !!card && (
+                <div key={card.ID || card.Name} className="flex-col">
+                  <MtgCard data={card} />
+                </div>
+              ),
+          )
         )}
       </div>
     </div>

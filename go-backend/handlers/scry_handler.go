@@ -5,13 +5,31 @@ import (
 	"fmt"
 	"go-backend/database"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
+
+func GetCardID(w http.ResponseWriter, r *http.Request){
+		cardId := r.URL.Query().Get("id")
+	if cardId == "" {
+		http.Error(w, "Card name is required", http.StatusBadRequest)
+		return
+	}
+		card, err := database.GetCardByID(cardId)
+	if err == nil {
+		// Card found in database, return cached version
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"data": card,
+		})
+		return
+	}
+}
 
 func SearchCard(w http.ResponseWriter, r *http.Request) {
 	// Get card name from query parameter
@@ -105,8 +123,7 @@ func GetRndCard(w http.ResponseWriter, r *http.Request) {
 
 func GetSimilarCards(w http.ResponseWriter, r *http.Request) {
 	// Read the raw body
-	log.Println("=== GetSimilarCards HANDLER CALLED ===")
-	log.Printf("Method: %s, Path: %s", r.Method, r.URL.Path)
+	
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Failed to read request body", http.StatusBadRequest)
