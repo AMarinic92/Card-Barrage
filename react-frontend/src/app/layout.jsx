@@ -26,7 +26,7 @@ export default function Layout({ children }) {
                 />
                 <h1 className="text-9xl">Card Barrage</h1>
               </div>
-              <div className="w-full p-4">{children}</div>
+              <div className="w-full p-4 ">{children}</div>
             </main>
           </SidebarProvider>
         </QueryClientProvider>

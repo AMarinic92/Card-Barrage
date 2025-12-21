@@ -3,7 +3,7 @@ import Image from 'next/image';
 export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center  font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+      <main className="flex m-4 p-4 gap-4 min-h-screen w-full  flex-row items-start justify-betweenbg-white dark:bg-black sm:items-start">
         <Image
           className="dark:invert"
           src="/card-barrage.jpg"
@@ -17,7 +17,9 @@ export default function Home() {
             Home Page
           </h1>
           <p className="max-w-md text-3xl leading-8 text-zinc-600 dark:text-zinc-400">
-            Card Barrage, a work in progress magic the gathering deck helper
+            Card Barrage, a work in progress magic the gathering deck helper.
+            The end goal is a robust card suggestion engine using a graphical
+            database.
           </p>
         </div>
       </main>
