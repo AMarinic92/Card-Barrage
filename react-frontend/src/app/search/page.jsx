@@ -46,7 +46,6 @@ export default function CardSearchForm() {
     // Only run query if we have at least 2 characters
     enabled: deferredTerm.length >= 2,
   });
-  console.log(data);
   return (
     <div className="flex flex-col items-center w-full gap-8">
       <Form {...searchForm}>

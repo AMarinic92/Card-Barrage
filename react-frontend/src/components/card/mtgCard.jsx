@@ -33,18 +33,24 @@ export default function MtgCard({ data, isLoading = false }) {
     router.push(`/cards/${data.ID}`);
   };
 
-  if (isLoading) return <Loading />;
-  if (!data) return null;
+  // if (isLoading)
+  //   return (
+  //     <div
+  //       className="cursor-pointer flex flex-col items-center p-4 m-4 gap-4 border rounded-2xl hover:border-amber-500 transition-all bg-card"
+  //       style={{ width: '400px' }}
+  //     >
+  //       <Loading />
+  //     </div>
+  //   );
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <div
           className="cursor-pointer flex flex-col items-center p-4 m-4 gap-4 border rounded-2xl hover:border-amber-500 transition-all bg-card"
-          /* Change max-w-xs (20rem) to max-w-sm (24rem) or a fixed pixel value like 400px */
           style={{ width: '400px' }}
         >
-          {/* Reduced text size from 6xl so the card remains the focus */}
+          {isLoading ? <Loading /> : null}
           <h3 className="text-2xl font-bold text-center line-clamp-1">
             {data?.Name}
           </h3>

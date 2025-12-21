@@ -28,13 +28,11 @@ export default function RandomCard() {
     setSimilar([]);
   }, [randomMutation.data]);
   useEffect(() => {
-    console.log('sim', similarMutation.data);
     setSimilar(similarMutation.data);
   }, [similarMutation.data]);
   const handleGetRandom = () => {
     randomMutation.mutate();
   };
-
   const handleGetSimilar = () => {
     similarMutation.mutate(randomMutation.data?.card);
   };

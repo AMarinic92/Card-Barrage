@@ -4,13 +4,15 @@ import { use, useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import API from '@/lib/api';
 import ManaCostDisplay from '@/components/card/manaCostDisplay';
+import Display from '@/components/card/display';
+
 import OracleText from '@/components/card/oracleText';
 import Image from 'next/image';
-import MtgCard from '@/components/card/mtgCard';
 import { Button } from '@/components/ui/button';
+import Loading from '@/components/loading/loading';
+
 export default function CardPage({ params }) {
   const { slug } = use(params); // Make sure slug is properly unwrapped
-
   const { data, isLoading, error } = useQuery({
     queryKey: ['card-info', slug],
     queryFn: async () => {
@@ -38,18 +40,6 @@ export default function CardPage({ params }) {
     similarMutation.mutate(cards?.[0]);
   };
 
-  const imageUri = useMemo(() => {
-    if (!data) return undefined;
-    const images = JSON.parse(data?.ImageURIs);
-    const image = images != null ? images?.png : undefined;
-    const cardFaces = JSON.parse(data?.CardFaces);
-    const cardFacesUris =
-      cardFaces != null
-        ? cardFaces?.map((val) => val?.image_uris?.png)
-        : undefined;
-    return image != undefined ? [image] : cardFacesUris;
-  }, [data]);
-
   const cards = useMemo(() => {
     if (!data) return undefined;
     const images = JSON.parse(data?.ImageURIs);
@@ -59,14 +49,15 @@ export default function CardPage({ params }) {
     return out;
   }, [data]);
 
-  const similar = useMemo(() => {
-    if (!similarMutation?.data) return [];
-    return similarMutation.data;
-  }, [similarMutation.data]);
+  const filterType = cards?.map((c) => {
+    const s = c.TypeLine.split(' — ');
+    return s[0] ?? '';
+  });
+
   if (!slug) return <div>No slug provided</div>;
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
-  console.log(similar);
+
   return (
     <>
       {cards?.map((card, i) => {
@@ -88,7 +79,9 @@ export default function CardPage({ params }) {
                 <Button
                   className="max-w-24"
                   onClick={handleGetSimilar}
-                  disabled={similar?.length || similarMutation.isPending}
+                  disabled={
+                    similarMutation?.data?.length || similarMutation.isPending
+                  }
                 >
                   {similarMutation.isPending ? 'Finding...' : 'Get Similar'}
                 </Button>
@@ -106,19 +99,11 @@ export default function CardPage({ params }) {
           </div>
         );
       })}
-      <div className="flex flex-wrap flex-row justify-center items-center w-fit h-fit max-h-fit max-w-fit">
-        {!!similar ? (
-          similar?.map((simCard) => {
-            return (
-              <div key={simCard.ID || simCard.Name} className="flex-col">
-                <MtgCard isLoading={similarMutation.isPending} data={simCard} />
-              </div>
-            );
-          })
-        ) : (
-          <></>
-        )}
-      </div>
+      <Display
+        cards={similarMutation?.data}
+        isLoading={isLoading || similarMutation.isPending}
+        filterType={filterType}
+      />
     </>
   );
 }
