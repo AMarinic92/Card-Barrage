@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { PanelLeftIcon } from 'lucide-react';
-
+import Image from 'next/image';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -252,7 +252,6 @@ function Sidebar({
     </div>
   );
 }
-
 function SidebarTrigger({
   className,
   onClick,
@@ -265,16 +264,21 @@ function SidebarTrigger({
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
       variant="ghost"
-      size="icon"
-      className={cn('size-7', className)}
+      className={cn('h-32 w-32 p-1 cursor-pointer', className)} // Custom size
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      <Image
+        className="h-full w-full object-contain"
+        src="/CB_logo.png"
+        alt="Card Barrage logo"
+        width={200}
+        height={200}
+        priority
+      />
     </Button>
   );
 }

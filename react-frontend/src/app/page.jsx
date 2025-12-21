@@ -5,9 +5,8 @@ export default function Home() {
     <div className="flex min-h-screen items-center justify-center  font-sans dark:bg-black">
       <main className="flex m-4 p-4 gap-4 min-h-screen w-full  flex-row items-start justify-betweenbg-white dark:bg-black sm:items-start">
         <Image
-          className="dark:invert"
-          src="/card-barrage.jpg"
-          alt="Next.js logo"
+          src="/CB_logo.png"
+          alt="Card Barrage Logo"
           width={500}
           height={500}
           priority

@@ -14,17 +14,9 @@ export default function Layout({ children }) {
           <SidebarProvider>
             <AppSidebar />
             <main className="flex-1">
-              <div className=" flex flex-row gap-x-2.5 w-full p-4">
-                <SidebarTrigger />
-                <Image
-                  className="dark:invert"
-                  src="/card-barrage.jpg"
-                  alt="Card Barrage logo"
-                  width={100}
-                  height={100}
-                  priority
-                />
-                <h1 className="text-9xl">Card Barrage</h1>
+              <div className=" flex flex-row gap-x-2.5 w-full h-fit p-4">
+                <SidebarTrigger className="mt-4" />
+                <div className="text-9xl">Card Barrage</div>
               </div>
               <div className="w-full p-4 ">{children}</div>
             </main>
