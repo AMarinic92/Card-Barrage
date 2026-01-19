@@ -61,3 +61,36 @@ func InitializeMemgraph() {
 func GetDB() *gorm.DB {
 	return DB
 }
+
+
+
+func InitSystem(models ...interface{}) {
+    // 1. Initialize Connections (These stay blocking as they are required)
+    InitializeDatabase(models...)
+    InitializeMemgraph()
+
+    // 2. Perform Parity Check
+    log.Println("Checking Database Parity")
+    pgCount := GetPostgresCardCount()
+    mgCount := GetMemgraphCardCount()
+
+    fmt.Printf("Counts -> Postgres (Unique Cards): %d | Memgraph (Nodes): %d\n", pgCount, mgCount)
+
+    if pgCount != mgCount || mgCount == 0 {
+        fmt.Println("Out of sync! Background Memgraph re-sync started...")
+        
+        // START GOROUTINE: This prevents blocking the rest of the app
+        go func() {
+            if err := ReSyncToMemgraph(); err != nil {
+                // Use log.Printf instead of Fatalf here so the app doesn't crash 
+                // if only the graph sync fails
+                log.Printf("Background re-sync failed: %v", err)
+            } else {
+                fmt.Println("Background Memgraph re-sync completed successfully!")
+            }
+        }()
+        
+    } else {
+        fmt.Println("Databases are in sync. Ready to go!")
+    }
+}

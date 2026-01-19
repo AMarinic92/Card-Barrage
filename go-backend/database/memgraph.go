@@ -83,13 +83,16 @@ func syncToMemgraph(cards []*models.Card) error {
     // Prepare a "lean" map for Memgraph ingestion
     var batchData []map[string]interface{}
     for _, c := range cards {
+		if c.OracleID == nil { continue }
         batchData = append(batchData, map[string]interface{}{
-            "id":        c.ID,
-            "name":      c.Name,
-            "cmc":       derefFloat(c.CMC),
-            "types":     processTypes(c.TypeLine),
-            "keywords":  []string(c.Keywords),
-            "mechanics": extractMechanics(derefString(c.OracleText)),
+            "id":          c.OracleID,
+            "name":        c.Name,
+            "manaCost":    derefString(c.ManaCost),
+            "cmc":         derefFloat(c.CMC),
+            "typeLine":    c.TypeLine,
+            "types":       processTypes(c.TypeLine),
+            "keywords":    c.Keywords,
+            "mechanics":   extractMechanics(derefString(c.OracleText)),
         })
     }
 
@@ -124,6 +127,26 @@ func syncToMemgraph(cards []*models.Card) error {
     return err
 }
 
+func GetMemgraphCardCount() int64 {
+	ctx := context.Background()
+	session := GraphDriver.NewSession(ctx, neo4j.SessionConfig{AccessMode: neo4j.AccessModeRead})
+	defer session.Close(ctx)
+
+	result, err := session.Run(ctx, "MATCH (c:Card) RETURN count(c) as count", nil)
+	if err != nil {
+		return 0
+	}
+
+	if result.Next(ctx) {
+		val, _ := result.Record().Get("count")
+		return val.(int64)
+	}
+	return 0
+}
+
+
+// This is what needs to get smart.
+// Maybe we throw a llm at this too?
 func extractMechanics(oracleText string) []string {
 	mechanics := []string{}
 	text := strings.ToLower(oracleText)

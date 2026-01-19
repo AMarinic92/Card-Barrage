@@ -17,8 +17,7 @@ import (
 
 func main() {
 	// 1. Initialize the database connection and run migrations
-	database.InitializeDatabase(&models.Card{})
-	database.InitializeMemgraph()
+	database. InitSystem(&models.Card{})
 	// 2. Check if we should prime the database in the background
 	if len(os.Args) > 1 && os.Args[1] == "prime" {
 		filePath := "../../all-cards.json"

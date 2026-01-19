@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-backend/models"
 	"io"
+	"log"
 	"sync"
 	"time"
 
@@ -37,6 +38,47 @@ func batchInsertCards(cards []*models.Card) error {
 			"released_at", "lang", "cached_at",
 		}),
 	}).CreateInBatches(cards, len(cards)).Error
+}
+
+func GetPostgresCardCount() int64 {
+	var count int64
+	// We count DISTINCT oracle_id because Memgraph uses OracleID as the unique anchor
+	DB.Model(&models.Card{}).Distinct("oracle_id").Count(&count)
+	return count
+}
+
+func ReSyncToMemgraph() error {
+	// 1. Get the count of UNIQUE oracle_ids for an accurate progress bar
+	var uniqueCount int64
+	DB.Model(&models.Card{}).Distinct("oracle_id").Count(&uniqueCount)
+
+	const batchSize = 1000
+	// We use a raw query or GORM's Clauses to handle the DISTINCT ON requirement efficiently
+	for i := 0; i < int(uniqueCount); i += batchSize {
+		var cards []*models.Card
+		
+		// DISTINCT ON (oracle_id) ensures we only get one row per functional card.
+		// We order by oracle_id (required by DISTINCT ON) and then released_at DESC 
+		// to ensure the graph gets the most recent text/wording.
+		err := DB.Raw(`
+			SELECT DISTINCT ON (oracle_id) * FROM cards 
+			WHERE oracle_id IS NOT NULL
+			ORDER BY oracle_id, released_at DESC 
+			LIMIT ? OFFSET ?`, batchSize, i).Scan(&cards).Error
+
+		if err != nil {
+			return fmt.Errorf("failed to fetch distinct cards: %w", err)
+		}
+
+		if err := syncToMemgraph(cards); err != nil {
+			return fmt.Errorf("failed to sync batch to Memgraph: %w", err)
+		}
+		
+		log.Printf("Synced %d/%d unique cards to Memgraph...", i+len(cards), uniqueCount)
+	}
+
+	log.Println(" Memgraph re-sync complete (Unique functional cards only).")
+	return nil
 }
 
 // SearchCardByNameFuzzy searches for cards with similar names (requires pg_trgm extension)
@@ -144,6 +186,7 @@ func PrimeDatabase(file io.Reader) error {
 
 	// Read opening bracket
 	if _, err := decoder.Token(); err != nil {
+		log.Fatalf("failed to read opening bracket: %w", err)
 		return fmt.Errorf("failed to read opening bracket: %w", err)
 	}
 
@@ -153,12 +196,13 @@ func PrimeDatabase(file io.Reader) error {
 	var batchCount int
 
 	startTime := time.Now()
-	fmt.Println("Starting database priming...")
+	log.Println("Starting database priming...")
 
 	// Read array elements
 	for decoder.More() {
 		var rawCard map[string]interface{}
 		if err := decoder.Decode(&rawCard); err != nil {
+			log.Fatalf("failed to decode card: %w", err)
 			return fmt.Errorf("failed to decode card: %w", err)
 		}
 
@@ -168,6 +212,7 @@ func PrimeDatabase(file io.Reader) error {
 		// When batch is full, insert
 		if len(cards) >= batchSize {
 			if err := batchInsertCards(cards); err != nil {
+				log.Fatalf("failed to insert batch: %w", err)
 				return fmt.Errorf("failed to insert batch: %w", err)
 			}
 
@@ -178,7 +223,7 @@ func PrimeDatabase(file io.Reader) error {
 			if batchCount%10 == 0 {
 				elapsed := time.Since(startTime)
 				rate := float64(totalCount) / elapsed.Seconds()
-				fmt.Printf("Inserted %d cards (%.0f cards/sec)...\n", totalCount, rate)
+				log.Printf("Inserted %d cards (%.0f cards/sec)...\n", totalCount, rate)
 			}
 
 			cards = cards[:0] // Reset slice
@@ -188,14 +233,14 @@ func PrimeDatabase(file io.Reader) error {
 	// Insert remaining cards
 	if len(cards) > 0 {
 		if err := batchInsertCards(cards); err != nil {
+			log.Fatalf("failed to insert final batch: %w", err)
 			return fmt.Errorf("failed to insert final batch: %w", err)
 		}
 		totalCount += len(cards)
 	}
 
 	elapsed := time.Since(startTime)
-	fmt.Printf("\n✓ Priming complete! Inserted %d cards in %s (%.0f cards/sec)\n",
+	log.Printf("\nPriming complete! Inserted %d cards in %s (%.0f cards/sec)\n",
 		totalCount, elapsed.Round(time.Second), float64(totalCount)/elapsed.Seconds())
-
 	return nil
 }
