@@ -123,7 +123,7 @@ export default function CardPage({ params }) {
           </div>
         );
       })}
-      <Accordion type="multiple" collapsible>
+      <Accordion type="multiple" collapsible="true">
         <AccordionItem value="similar">
           <AccordionTrigger className="text-2xl">
             Similar Cards

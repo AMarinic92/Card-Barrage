@@ -35,7 +35,9 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Card Barrage</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xl">
+            Card Barrage
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

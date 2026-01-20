@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   // Enforce dark mode based on the 'class' strategy
-  darkMode: 'class', 
+  darkMode: 'class',
   content: [
     './src/app/**/*.{js,ts,jsx,tsx,mdx}', // Adjust paths as needed for your project structure
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -15,7 +15,7 @@ module.exports = {
         // Base Background/Text (Cosmic/Night Sky Background)
         background: {
           DEFAULT: '#100C1F', // Deep, dark cosmic purple/blue (Primary BG)
-          light: '#1B1437',  // Slightly lighter for cards/sections
+          light: '#1B1437', // Slightly lighter for cards/sections
           darker: '#090615', // Near-black for borders/separators
         },
         // Primary Accent (The central magic vortex/Aura)
@@ -35,33 +35,50 @@ module.exports = {
         // Secondary Accent (The Golden Border/Text)
         secondary: {
           DEFAULT: '#FFC83D', // Bright Gold for contrast
-          dark: '#CC9D30',    // Muted Gold for accents
-          light: '#FFF0C2',   // Light Gold for hover/focus
+          dark: '#CC9D30', // Muted Gold for accents
+          light: '#FFF0C2', // Light Gold for hover/focus
         },
         // Tertiary/Highlight (The glowing energy/lightning bolts)
         highlight: {
           DEFAULT: '#FBBF24', // Amber/Yellow glow
-          dark: '#D97706',    // Darker for subtle effects
+          dark: '#D97706', // Darker for subtle effects
         },
         // Mana/Card Colors (Based on Magic's WUBRG)
         mana: {
           white: '#F9FAFB', // Near White (plains)
-          blue: '#3B82F6',  // Bright Blue (islands)
+          blue: '#3B82F6', // Bright Blue (islands)
           black: '#1F2937', // Dark Gray (swamps)
-          red: '#EF4444',   // Red (mountains)
+          red: '#EF4444', // Red (mountains)
           green: '#10B981', // Emerald Green (forests)
-        }
+        },
       },
       // --- 2. Custom Typography (Based on the logo's style) ---
       fontFamily: {
         // A bold, classic font for titles (like the 'Card Barrage' text)
-        display: ['Impact', 'serif'], 
+        display: ['Impact', 'serif'],
         // A clean, modern font for body text (ensures readability)
-        body: ['Inter', 'sans-serif'], 
+        body: ['Inter', 'sans-serif'],
+      },
+      // --- 2b. Enhanced Font Sizes (Responsive and Larger) ---
+      fontSize: {
+        xs: ['0.875rem', { lineHeight: '1.25rem' }], // 14px
+        sm: ['1rem', { lineHeight: '1.5rem' }], // 16px (was 14px)
+        base: ['1.125rem', { lineHeight: '1.75rem' }], // 18px (was 16px)
+        lg: ['1.25rem', { lineHeight: '1.875rem' }], // 20px (was 18px)
+        xl: ['1.5rem', { lineHeight: '2rem' }], // 24px (was 20px)
+        '2xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px (was 24px)
+        '3xl': ['2.25rem', { lineHeight: '2.5rem' }], // 36px (was 30px)
+        '4xl': ['3rem', { lineHeight: '1.2' }], // 48px (was 36px)
+        '5xl': ['3.75rem', { lineHeight: '1.1' }], // 60px (was 48px)
+        '6xl': ['4.5rem', { lineHeight: '1' }], // 72px (was 60px)
+        '7xl': ['6rem', { lineHeight: '1' }], // 96px (was 72px)
+        '8xl': ['8rem', { lineHeight: '1' }], // 128px (was 96px)
+        '9xl': ['10rem', { lineHeight: '1' }], // 160px (was 128px)
       },
       // --- 3. Custom Shadow (Inspired by the glowing/electric effect) ---
       boxShadow: {
-        'magic-glow': '0 0 10px rgba(14, 165, 233, 0.7), 0 0 20px rgba(14, 165, 233, 0.5)',
+        'magic-glow':
+          '0 0 10px rgba(14, 165, 233, 0.7), 0 0 20px rgba(14, 165, 233, 0.5)',
         'gold-edge': '0 0 5px rgba(255, 200, 61, 0.8)',
       },
       // --- 4. Custom Dark Mode Utilities ---
@@ -71,7 +88,7 @@ module.exports = {
       },
       textColor: {
         'dark-contrast': '#FFC83D', // Secondary (Gold) for main headings
-        'dark-text': '#E5E7EB',     // Light Gray for body text
+        'dark-text': '#E5E7EB', // Light Gray for body text
       },
     },
   },
