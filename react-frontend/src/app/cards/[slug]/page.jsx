@@ -28,11 +28,10 @@ export default function CardPage({ params }) {
   const similarMutation = useMutation({
     mutationFn: async (currentCard) => {
       const payload = {
-        name: currentCard?.Name,
-        oracle_texts: currentCard?.OracleText?.split('\n') || [],
+        oracle_id: currentCard?.OracleID,
       };
       console.debug(payload);
-      return await API.post('/cards/similar', payload);
+      return await API.post('/cards/mems', payload);
     },
   });
 
@@ -58,11 +57,9 @@ export default function CardPage({ params }) {
     (acc, curr) => acc.concat(curr?.ColorIdentity),
     [],
   );
-  console.log('CI ', colorIdentity);
   if (!slug) return <div>No slug provided</div>;
   if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
-
   return (
     <div className="flex flex-col h-fit">
       {cards?.map((card, i) => {

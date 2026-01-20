@@ -66,13 +66,27 @@ func GetCardSuggestions(oracleID string) ([]models.Card, error) {
 		return []models.Card{}, nil
 	}
 
-	// 2. Hydrate from Postgres (Bulk fetch for speed)
-	var cards []models.Card
-	err = DB.Where("id IN ?", suggestedIDs).
-		Order(fmt.Sprintf("idx(array['%s'], id)", strings.Join(suggestedIDs, "','"))). // Maintain Graph Rank
-		Find(&cards).Error
+    // 1. Fetch the cards from Postgres
+    var cards []models.Card
+    if err := DB.Where("oracle_id IN ?", suggestedIDs).Where("lang = ?", "en").Find(&cards).Error; err != nil {
+        return nil, err
+    }
 
-	return cards, err
+    // 2. Map cards by their ID for quick lookup
+    cardMap := make(map[string]models.Card)
+    for _, card := range cards {
+        cardMap[*card.OracleID] = card
+    }
+
+    // 3. Rebuild the slice in the EXACT order of suggestedIDs
+    orderedCards := make([]models.Card, 0, len(suggestedIDs))
+    for _, id := range suggestedIDs {
+        if card, exists := cardMap[id]; exists {
+            orderedCards = append(orderedCards, card)
+        }
+    }
+
+    return orderedCards, nil
 }
 
 func syncToMemgraph(cards []*models.Card) error {

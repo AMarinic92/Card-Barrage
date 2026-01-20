@@ -86,7 +86,7 @@ func SearchCardByNameFuzzy(name string) ([]models.Card, error) {
     var cards []models.Card
     
     result := DB.Raw(`
-        SELECT c.name, c.id, c.image_uris, c.colors, c.card_faces, c.oracle_text, c.mana_cost, c.cmc, c.color_identity, c.type_line
+        SELECT c.name, c.id, c.oracle_id, c.image_uris, c.colors, c.card_faces, c.oracle_text, c.mana_cost, c.cmc, c.color_identity, c.type_line
         FROM cards c
         INNER JOIN (
             SELECT name, MAX(id) as id
@@ -166,7 +166,7 @@ func SearchFuzzyOracleText(name string, text []string) ([]models.Card, error) {
 // GetCardByID retrieves a card by its Scryfall ID
 func GetCardByID(id string) (*models.Card, error) {
 	var card models.Card
-	result := DB.Select("Name","TypeLine", "cmc","Power","Toughness", "ImageURIs", "Colors", "CardFaces", "OracleText", "ManaCost", "ColorIdentity").Where("id = ?", id).First(&card)
+	result := DB.Select("ID","Name","TypeLine", "cmc","Power","Toughness", "ImageURIs", "Colors", "CardFaces", "OracleText","OracleID", "ManaCost", "ColorIdentity").Where("id = ?", id).First(&card)
 	if result.Error != nil {
 		return nil, result.Error
 	}
